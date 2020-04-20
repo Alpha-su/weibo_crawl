@@ -7,8 +7,10 @@ from urllib.parse import urlencode
 import datetime
 import random
 
+COOKIE = 'SINAGLOBAL=2369024381646.083.1568719988213; login_sid_t=b0ab4f3e618d8624f6fb7f05ced95b16; cross_origin_proto=SSL; _s_tentry=cn.bing.com; Apache=713238676684.1003.1587192631917; ULV=1587192632930:9:1:1:713238676684.1003.1587192631917:1585548137802; appkey=; un=2017202087@ruc.edu.cn; SCF=AuDv4qH-BJEzpkv-OA89CMjwe8gYFC_Rydhw6hb7OKEGJ_q4iBhB7hG-ELIhfojEPbqV0dqBP1QyDeebhJ6AFv4.; SUHB=0TPVFFpzwiYjHc; SSOLoginState=1587308867; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9Whug1J09jMDygr879obXUaN5JpX5oz75NHD95QNSheReKMcSoMNWs4DqcjeMs87qHv0UK2EeKeR; ALF=1589900937; SUB=_2A25zmBnZDeRhGeFK6FoQ9yjKzDuIHXVRYqeRrDV8PUJbkNANLU7skW1NQ3GAu1xBFRBWh_vauG6v1ScDprmv6nrX; wvr=6; UOR=,,cn.bing.com; webim_unReadCount=%7B%22time%22%3A1587365119845%2C%22dm_pub_total%22%3A0%2C%22chat_group_client%22%3A0%2C%22chat_group_notice%22%3A0%2C%22allcountNum%22%3A10%2C%22msgbox%22%3A0%7D'
 
-def get_one_page(url,timeout=2):
+
+def get_one_page(url,cookie,timeout=2):
     headers = {
         'Accept': 'text / html, application / xhtml + xml, application / '
                   'xml;q = 0.9, image / webp, image / apng, * / *;q = 0.8, application / '
@@ -18,7 +20,7 @@ def get_one_page(url,timeout=2):
         'Cache - Control': 'max - age = 0',
         'Connection': 'keep - alive',
         
-        'Cookie': 'SINAGLOBAL=2369024381646.083.1568719988213; login_sid_t=b0ab4f3e618d8624f6fb7f05ced95b16; cross_origin_proto=SSL; YF-V5-G0=2583080cfb7221db1341f7a137b6762e; _s_tentry=cn.bing.com; Apache=713238676684.1003.1587192631917; ULV=1587192632930:9:1:1:713238676684.1003.1587192631917:1585548137802; Ugrow-G0=140ad66ad7317901fc818d7fd7743564; appkey=; WBtopGlobal_register_version=fd6b3a12bb72ffed; WB_register_version=fd6b3a12bb72ffed; un=2017202087@ruc.edu.cn; wb_view_log_7438176677=1920*10801; wb_view_log=1920*10801; SCF=AuDv4qH-BJEzpkv-OA89CMjwe8gYFC_Rydhw6hb7OKEGJ_q4iBhB7hG-ELIhfojEPbqV0dqBP1QyDeebhJ6AFv4.; SUB=_2A25zn8XBDeRhGeFO4loR9i3IzTiIHXVQ7LAJrDV8PUNbmtAKLReikW9NQSquqHrmIpt2q-hi-k70YRR0KKdBmI1Q; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WhpFuILj2nn.Mfn.jlzipO95JpX5K2hUgL.FoM71Kn7SoeXSoB2dJLoIpzLxKBLBonL1h5LxK.L1h-LBK-t; SUHB=0V5lo5LR7LFZO4; ALF=1587867731; SSOLoginState=1587262865; wvr=6; wb_view_log_7098063464=1920*10801; UOR=,,cn.bing.com; WBStorage=42212210b087ca50|undefined; YF-Page-G0=20a0c65c6e2ee949c1f78305a122073b|1587273230|1587273062; webim_unReadCount=%7B%22time%22%3A1587273299024%2C%22dm_pub_total%22%3A0%2C%22chat_group_client%22%3A0%2C%22chat_group_notice%22%3A0%2C%22allcountNum%22%3A0%2C%22msgbox%22%3A0%7D',
+        'Cookie': COOKIE,
         # 'Host': 'weibo.com',
         # 'Referer': 'https: // s.weibo.com / weibo / % 25E5 % 259E % 2583 % 25E5 % 259C % 25BE % 25E5 % 2588 % 2586 % 25E7 % 25B1'
         #            ' % 25BB?topnav = 1 & wvr = 6 & b = 1',
@@ -90,7 +92,7 @@ def parse_friends(html):
         return []
     
 
-def get_all_friends(uid):  # 获取单个用户的关注列表
+def get_all_friends(uid,cookie):  # 获取单个用户的关注列表
     name_list = []
     for page_num in range(1,200):
         params = {
@@ -98,13 +100,13 @@ def get_all_friends(uid):  # 获取单个用户的关注列表
                      'page': page_num,
                      'ajaxpagelet': '1',
                      'ajaxpagelet_v6': '1',
-                     '__ref': '/ p / 1005055840965490 / follow?page = 2'
         # Pl_Official_HisRelation__59
         }
         url = 'https://weibo.com/p/100505{uid}/follow?'.format(uid=uid)
         url = url + urlencode(params)
         # print(url)
-        response = get_one_page(url)
+        response = get_one_page(url,cookie)
+        if not response:continue
         try:
             response = eval(response[23:-11])['html']
         except Exception as e:
@@ -131,7 +133,6 @@ def get_user_detail():
         uid = re.findall(r'.com/(.*?)\Srefer',href)[0]
         print('uid: {}'.format(uid))
         try:
-            uid =
             result = get_one_page(url='https://weibo.com/p/100505{uid}/info?mod=pedit_more'.format(uid=uid),timeout=1)
             pattern1 = r'<strong class=\S"W_f18\S">(.*?)<\S\Sstrong>'
             pattern2 = r'<span class=\S"pt_detail\S">(.*?)<\S\Sspan>'
@@ -152,11 +153,12 @@ def get_user_detail():
             continue
 
 if __name__ == '__main__':
-    # result = get_all_friends('5840965490')
-    # pprint(result)
+    result = get_all_friends('5840965490',cookie)
+    pprint(result)
     # print(len(result))
     
     # print(result)
     # pprint([item.strip() for item in re.findall(pattern2,result,re.S)])
     # print(get_user_detail())
-    get_user_detail()
+    # get_user_detail()
+    

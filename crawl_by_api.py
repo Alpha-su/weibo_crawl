@@ -42,7 +42,7 @@ def access():  # 获得weiboAPI登陆权限
 
 def get_user_detail():
     client = access()
-    detail = client.users__show(screen_name='一酥')
+    detail = client.users__show(uid="1317579221")
     print(detail)
     return
     # db = database.Mysql('root','990211','weibo')

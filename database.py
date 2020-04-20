@@ -36,10 +36,10 @@ class Mysql():
                 return True
         except Exception as err:
             # print(err)
-            err_code = int(str(err)[1:5])
-            if err_code != 1062:
-                # print(data)
-                print(err)
+            # err_code = int(str(err)[1:5])
+            # if err_code != 1062:
+            #     # print(data)
+            print(err)
             self.db.rollback()
             return False
     
